@@ -8,6 +8,7 @@ uvicorn = "^0.30.0"
 pycoingecko = "^3.1.0"
 yfinance = "^0.2.43"
 pandas = "^2.2.2"
+pymongo = {extras = ["srv"], version = "^4.15.3"}
 
 [build-system]
 requires = ["poetry-core"]
