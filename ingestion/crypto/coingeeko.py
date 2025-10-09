@@ -1,118 +1,118 @@
+# ingestion/crypto/coingeeko.py
 from pycoingecko import CoinGeckoAPI
 import json
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import List, Optional, Dict, Any
 
-def fetch_crypto_data():
-    """
-    Fetch cryptocurrency data using CoinGecko and save to JSON
-    """
-    try:
-        # Initialize the CoinGecko API
-        cg = CoinGeckoAPI()
-        
-        # Define the cryptocurrencies you want to track (using CoinGecko IDs)
-        crypto_ids = ['bitcoin', 'ethereum', 'cardano', 'solana', 'dogecoin']
-        
-        all_crypto_data = {}
-        
-        print("Fetching cryptocurrency data from CoinGecko...")
-        
-        # Get current price data for all specified cryptocurrencies
-        price_data = cg.get_price(
-            ids=','.join(crypto_ids), 
-            vs_currencies='usd,eur',
-            include_market_cap='true',
-            include_24hr_vol='true',
-            include_24hr_change='true',
-            include_last_updated_at='true'
-        )
-        
-        # Get additional market data for each cryptocurrency
-        for crypto_id in crypto_ids:
-            if crypto_id in price_data:
-                print(f"Processing data for {crypto_id}...")
-                
-                # Get more detailed information
-                coin_data = cg.get_coin_by_id(crypto_id)
-                
-                crypto_info = {
-                    "id": crypto_id,
-                    "name": coin_data.get('name', 'N/A'),
-                    "symbol": coin_data.get('symbol', '').upper(),
-                    "current_price_usd": price_data[crypto_id].get('usd', 'N/A'),
-                    "current_price_eur": price_data[crypto_id].get('eur', 'N/A'),
-                    "market_cap_usd": price_data[crypto_id].get('usd_market_cap', 'N/A'),
-                    "market_cap_eur": price_data[crypto_id].get('eur_market_cap', 'N/A'),
-                    "24h_volume_usd": price_data[crypto_id].get('usd_24h_vol', 'N/A'),
-                    "24h_volume_eur": price_data[crypto_id].get('eur_24h_vol', 'N/A'),
-                    "24h_change_percentage": price_data[crypto_id].get('usd_24h_change', 'N/A'),
-                    "market_cap_rank": coin_data.get('market_cap_rank', 'N/A'),
-                    "circulating_supply": coin_data.get('market_data', {}).get('circulating_supply', 'N/A'),
-                    "total_supply": coin_data.get('market_data', {}).get('total_supply', 'N/A'),
-                    "max_supply": coin_data.get('market_data', {}).get('max_supply', 'N/A'),
-                    "timestamp": datetime.now().isoformat(),
-                    "last_updated": price_data[crypto_id].get('last_updated_at', 'N/A')
-                }
-                
-                all_crypto_data[crypto_id] = crypto_info
-        
-        # Define the filename with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"crypto_data_{timestamp}.json"
-        
-        # Save all crypto data to a JSON file
-        with open(filename, 'w', encoding='utf-8') as json_file:
-            json.dump(all_crypto_data, json_file, indent=2, ensure_ascii=False)
-        
-        print(f"Crypto data successfully saved to {filename}")
-        print(f"Fetched data for {len(crypto_ids)} cryptocurrencies")
-        
-        return filename
-        
-    except Exception as err:
-        print(f"An error occurred while fetching crypto data: {err}")
-        return None
+# --- FastAPI router bits
+from fastapi import APIRouter, Query
+from pydantic import BaseModel
 
-def fetch_crypto_history(coin_id='bitcoin', days=30):
-    """
-    Fetch historical market data for a specific cryptocurrency
-    """
-    try:
-        cg = CoinGeckoAPI()
-        
-        print(f"Fetching {days} days of historical data for {coin_id}...")
-        
-        # Get historical market data
-        history_data = cg.get_coin_market_chart_by_id(
-            id=coin_id, 
-            vs_currency='usd', 
-            days=days
-        )
-        
-        historical_data = {
-            "coin_id": coin_id,
-            "days": days,
-            "timestamp": datetime.now().isoformat(),
-            "prices": history_data.get('prices', []),
-            "market_caps": history_data.get('market_caps', []),
-            "total_volumes": history_data.get('total_volumes', [])
+DEFAULT_IDS = ['bitcoin', 'ethereum', 'cardano', 'solana', 'dogecoin']
+DATA_DIR = Path("ingestion/data/crypto")
+
+def _now_iso_utc() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+def fetch_crypto_data(
+    crypto_ids: Optional[List[str]] = None,
+    output_dir: Optional[str] = None
+) -> Dict[str, Any]:
+    crypto_ids = crypto_ids or DEFAULT_IDS
+    outdir = Path(output_dir or DATA_DIR)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    cg = CoinGeckoAPI()
+    all_crypto_data = {}
+
+    price_data = cg.get_price(
+        ids=",".join(crypto_ids),
+        vs_currencies="usd,eur",
+        include_market_cap=True,
+        include_24hr_vol=True,
+        include_24hr_change=True,
+        include_last_updated_at=True
+    )
+
+    for cid in crypto_ids:
+        if cid not in price_data:
+            continue
+        coin = cg.get_coin_by_id(cid)
+        pd = price_data[cid]
+
+        crypto_info = {
+            "id": cid,
+            "name": coin.get("name", "N/A"),
+            "symbol": coin.get("symbol", "").upper(),
+            "current_price_usd": pd.get("usd", "N/A"),
+            "current_price_eur": pd.get("eur", "N/A"),
+            "market_cap_usd": pd.get("usd_market_cap", "N/A"),
+            "market_cap_eur": pd.get("eur_market_cap", "N/A"),
+            "24h_volume_usd": pd.get("usd_24h_vol", "N/A"),
+            "24h_volume_eur": pd.get("eur_24h_vol", "N/A"),
+            "24h_change_percentage": pd.get("usd_24h_change", "N/A"),
+            "market_cap_rank": coin.get("market_cap_rank", "N/A"),
+            "circulating_supply": coin.get("market_data", {}).get("circulating_supply", "N/A"),
+            "total_supply": coin.get("market_data", {}).get("total_supply", "N/A"),
+            "max_supply": coin.get("market_data", {}).get("max_supply", "N/A"),
+            "timestamp": _now_iso_utc(),
+            "last_updated_epoch": pd.get("last_updated_at", "N/A")
         }
-        
-        filename = f"crypto_history_{coin_id}_{days}days_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        
-        with open(filename, 'w', encoding='utf-8') as json_file:
-            json.dump(historical_data, json_file, indent=2)
-        
-        print(f"Historical crypto data saved to {filename}")
-        return filename
-        
-    except Exception as err:
-        print(f"Error fetching historical data for {coin_id}: {err}")
-        return None
+        all_crypto_data[cid] = crypto_info
 
-if __name__ == "__main__":
-    # Fetch current crypto data
-    fetch_crypto_data()
-    
-    # Or fetch historical data for Bitcoin (last 30 days)
-    # fetch_crypto_history('bitcoin', 30)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    path = outdir / f"crypto_data_{ts}.json"
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(all_crypto_data, f, indent=2, ensure_ascii=False)
+
+    return {"path": str(path), "count": len(all_crypto_data)}
+
+def fetch_crypto_history(
+    coin_id: str = "bitcoin",
+    days: int = 30,
+    output_dir: Optional[str] = None
+) -> Dict[str, Any]:
+    outdir = Path(output_dir or DATA_DIR)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    cg = CoinGeckoAPI()
+    history = cg.get_coin_market_chart_by_id(id=coin_id, vs_currency="usd", days=days)
+
+    payload = {
+        "coin_id": coin_id,
+        "days": days,
+        "timestamp": _now_iso_utc(),
+        "prices": history.get("prices", []),
+        "market_caps": history.get("market_caps", []),
+        "total_volumes": history.get("total_volumes", [])
+    }
+
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    path = outdir / f"crypto_history_{coin_id}_{days}days_{ts}.json"
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, ensure_ascii=False)
+
+    return {"path": str(path), "coin_id": coin_id}
+
+# ---------- FastAPI Router ----------
+class IngestResult(BaseModel):
+    path: str
+    count: Optional[int] = None
+    coin_id: Optional[str] = None
+
+router = APIRouter(prefix="/ingest/crypto", tags=["crypto"])
+
+@router.post("", response_model=IngestResult)
+def ingest_crypto(ids: Optional[str] = Query(None, description="Comma-separated CoinGecko IDs"),
+                  output_dir: Optional[str] = None):
+    crypto_ids: Optional[List[str]] = None
+    if ids:
+        crypto_ids = [s.strip() for s in ids.split(",") if s.strip()]
+    return fetch_crypto_data(crypto_ids=crypto_ids, output_dir=output_dir or str(DATA_DIR))
+
+@router.post("/history", response_model=IngestResult)
+def ingest_crypto_history(coin_id: str = "bitcoin",
+                          days: int = 30,
+                          output_dir: Optional[str] = None):
+    return fetch_crypto_history(coin_id=coin_id, days=days, output_dir=output_dir or str(DATA_DIR))
