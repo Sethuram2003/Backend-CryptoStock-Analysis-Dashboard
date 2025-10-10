@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/main.py"
+    }
+  ],
+  "env": {
+    "PYTHONUNBUFFERED": "1"
+  },
+  "functions": {
+    "src/main.py": {
+      "maxDuration": 60
+    }
+  },
+  "git": {
+    "deploymentBranch": "deployment"
+  }
+}
