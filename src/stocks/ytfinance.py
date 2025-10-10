@@ -9,6 +9,7 @@ from typing import List, Optional, Dict, Any
 # --- FastAPI router bits
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
+from src.schemas import IngestResult
 
 DEFAULT_TICKERS = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'AMZN']
 DATA_DIR = Path("ingestion/data/stocks")
@@ -102,10 +103,7 @@ def fetch_single_stock(
     return {"path": str(path), "ticker": ticker}
 
 # ---------- FastAPI Router ----------
-class IngestResult(BaseModel):
-    path: str
-    count: Optional[int] = None
-    ticker: Optional[str] = None
+
 
 router = APIRouter(prefix="/ingest/stocks", tags=["stocks"])
 

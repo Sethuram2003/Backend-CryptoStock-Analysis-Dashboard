@@ -1,14 +1,14 @@
 # ingestion/crypto/coingeeko.py
 from pycoingecko import CoinGeckoAPI
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
 # --- FastAPI router bits
 from fastapi import APIRouter, Query
-from pydantic import BaseModel
-from ingestion.utils.mongo import mongo
+from src.utils.mongo import mongo
+from src.schemas import IngestResult
+
 
 DEFAULT_IDS = ['bitcoin', 'ethereum', 'cardano', 'solana', 'dogecoin']
 DATA_DIR = Path("ingestion/data/crypto")
@@ -89,9 +89,7 @@ def fetch_crypto_history(
     return {"MongoDB": "Crypto_History", "coin_id": coin_id, "count": len(payload["prices"])}
 
 # ---------- FastAPI Router ----------
-class IngestResult(BaseModel):
-    count: Optional[int] = None
-    coin_id: Optional[str] = None
+
 
 router = APIRouter(prefix="/ingest/crypto", tags=["crypto"])
 
