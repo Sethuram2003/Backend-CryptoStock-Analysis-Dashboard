@@ -8,6 +8,7 @@ from typing import List, Optional, Dict, Any
 # --- FastAPI router bits
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
+from ingestion.utils.mongo import mongo
 
 DEFAULT_IDS = ['bitcoin', 'ethereum', 'cardano', 'solana', 'dogecoin']
 DATA_DIR = Path("ingestion/data/crypto")
@@ -17,11 +18,9 @@ def _now_iso_utc() -> str:
 
 def fetch_crypto_data(
     crypto_ids: Optional[List[str]] = None,
-    output_dir: Optional[str] = None
 ) -> Dict[str, Any]:
     crypto_ids = crypto_ids or DEFAULT_IDS
-    outdir = Path(output_dir or DATA_DIR)
-    outdir.mkdir(parents=True, exist_ok=True)
+    
 
     cg = CoinGeckoAPI()
     all_crypto_data = {}
@@ -61,20 +60,16 @@ def fetch_crypto_data(
         }
         all_crypto_data[cid] = crypto_info
 
-    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    path = outdir / f"crypto_data_{ts}.json"
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(all_crypto_data, f, indent=2, ensure_ascii=False)
+    mongo.connect()
+    mongo.insert(collection_name="Crypto", data={"fetched_at": _now_iso_utc(), "data": all_crypto_data})
 
-    return {"path": str(path), "count": len(all_crypto_data)}
+    return {"MongoDB Inserted": "Crypto", "count": len(all_crypto_data)}
 
 def fetch_crypto_history(
     coin_id: str = "bitcoin",
     days: int = 30,
-    output_dir: Optional[str] = None
 ) -> Dict[str, Any]:
-    outdir = Path(output_dir or DATA_DIR)
-    outdir.mkdir(parents=True, exist_ok=True)
+
 
     cg = CoinGeckoAPI()
     history = cg.get_coin_market_chart_by_id(id=coin_id, vs_currency="usd", days=days)
@@ -88,31 +83,26 @@ def fetch_crypto_history(
         "total_volumes": history.get("total_volumes", [])
     }
 
-    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    path = outdir / f"crypto_history_{coin_id}_{days}days_{ts}.json"
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, ensure_ascii=False)
+    mongo.connect()
+    mongo.insert(collection_name="Crypto_History", data=payload)
 
-    return {"path": str(path), "coin_id": coin_id}
+    return {"MongoDB": "Crypto_History", "coin_id": coin_id, "count": len(payload["prices"])}
 
 # ---------- FastAPI Router ----------
 class IngestResult(BaseModel):
-    path: str
     count: Optional[int] = None
     coin_id: Optional[str] = None
 
 router = APIRouter(prefix="/ingest/crypto", tags=["crypto"])
 
 @router.post("", response_model=IngestResult)
-def ingest_crypto(ids: Optional[str] = Query(None, description="Comma-separated CoinGecko IDs"),
-                  output_dir: Optional[str] = None):
+def ingest_crypto(ids: Optional[str] = Query(None, description="Comma-separated CoinGecko IDs")):
     crypto_ids: Optional[List[str]] = None
     if ids:
         crypto_ids = [s.strip() for s in ids.split(",") if s.strip()]
-    return fetch_crypto_data(crypto_ids=crypto_ids, output_dir=output_dir or str(DATA_DIR))
+    return fetch_crypto_data(crypto_ids=crypto_ids)
 
 @router.post("/history", response_model=IngestResult)
 def ingest_crypto_history(coin_id: str = "bitcoin",
-                          days: int = 30,
-                          output_dir: Optional[str] = None):
-    return fetch_crypto_history(coin_id=coin_id, days=days, output_dir=output_dir or str(DATA_DIR))
+                          days: int = 30):
+    return fetch_crypto_history(coin_id=coin_id, days=days)
