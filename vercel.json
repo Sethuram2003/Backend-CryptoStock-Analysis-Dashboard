@@ -19,5 +19,8 @@
     "src/main.py": {
       "maxDuration": 60
     }
+  },
+  "git": {
+    "deploymentBranch": "deployment"
   }
 }
