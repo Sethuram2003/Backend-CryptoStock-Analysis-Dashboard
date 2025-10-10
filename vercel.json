@@ -15,11 +15,6 @@
   "env": {
     "PYTHONUNBUFFERED": "1"
   },
-  "functions": {
-    "src/main.py": {
-      "maxDuration": 60
-    }
-  },
   "git": {
     "deploymentBranch": "deployment"
   }
