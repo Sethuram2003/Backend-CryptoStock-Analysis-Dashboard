@@ -1,17 +1,12 @@
-# ingestion/crypto/coingeeko.py
 from pycoingecko import CoinGeckoAPI
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import List, Optional, Dict, Any
 
-# --- FastAPI router bits
 from fastapi import APIRouter, Query
 from src.utils.mongo import mongo
-from src.schemas import IngestResult
 
 
 DEFAULT_IDS = ['bitcoin', 'ethereum', 'cardano', 'solana', 'dogecoin']
-DATA_DIR = Path("ingestion/data/crypto")
 
 def _now_iso_utc() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -60,10 +55,11 @@ def fetch_crypto_data(
         }
         all_crypto_data[cid] = crypto_info
 
-    mongo.connect()
-    mongo.insert(collection_name="Crypto", data={"fetched_at": _now_iso_utc(), "data": all_crypto_data})
+    # mongo.connect()
+    # mongo.insert(collection_name="Crypto", data={"fetched_at": _now_iso_utc(), "data": all_crypto_data})
 
-    return {"MongoDB Inserted": "Crypto", "count": len(all_crypto_data)}
+    # return {"MongoDB Inserted": "Crypto", "count": len(all_crypto_data)}
+    return all_crypto_data
 
 def fetch_crypto_history(
     coin_id: str = "bitcoin",
@@ -83,24 +79,25 @@ def fetch_crypto_history(
         "total_volumes": history.get("total_volumes", [])
     }
 
-    mongo.connect()
-    mongo.insert(collection_name="Crypto_History", data=payload)
+    # mongo.connect()
+    # mongo.insert(collection_name="Crypto_History", data=payload)
 
-    return {"MongoDB": "Crypto_History", "coin_id": coin_id, "count": len(payload["prices"])}
+    # return {"MongoDB": "Crypto_History", "coin_id": coin_id, "count": len(payload["prices"])}
+    return payload
 
-# ---------- FastAPI Router ----------
+
 
 
 router = APIRouter(prefix="/ingest/crypto", tags=["crypto"])
 
-@router.post("", response_model=IngestResult)
+@router.post("")
 def ingest_crypto(ids: Optional[str] = Query(None, description="Comma-separated CoinGecko IDs")):
     crypto_ids: Optional[List[str]] = None
     if ids:
         crypto_ids = [s.strip() for s in ids.split(",") if s.strip()]
     return fetch_crypto_data(crypto_ids=crypto_ids)
 
-@router.post("/history", response_model=IngestResult)
+@router.post("/history")
 def ingest_crypto_history(coin_id: str = "bitcoin",
                           days: int = 30):
     return fetch_crypto_history(coin_id=coin_id, days=days)
