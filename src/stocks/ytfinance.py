@@ -8,7 +8,7 @@ from typing import List, Optional, Dict, Any
 
 # --- FastAPI router bits
 from fastapi import APIRouter, Query
-from pydantic import BaseModel
+from src.utils.mongo import mongo
 
 DEFAULT_TICKERS = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'AMZN']
 
@@ -62,8 +62,11 @@ def fetch_stock_data(
                 })
 
         all_stock_data[tkr] = stock_data
+    mongo.connect()
+    mongo.insert(collection_name="Stock_Market", data={"fetched_at": _now_iso_utc(), "data": all_stock_data})
 
-    return all_stock_data
+    return {"MongoDB Inserted": "Stock_Market", "count": len(all_stock_data)}
+    #return all_stock_data
 
 def fetch_single_stock(
     ticker: str
@@ -84,7 +87,11 @@ def fetch_single_stock(
         "timestamp": _now_iso_utc()
     }
 
-    return payload
+    mongo.connect()
+    mongo.insert(collection_name="Stock_Market", data={"fetched_at": _now_iso_utc(), "data": payload})
+
+    return {"MongoDB Inserted": "Stock_Market", "count": len(payload)}
+    #return payload
 
 
 router = APIRouter(prefix="/ingest/stocks", tags=["stocks"])

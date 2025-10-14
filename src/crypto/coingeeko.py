@@ -55,11 +55,11 @@ def fetch_crypto_data(
         }
         all_crypto_data[cid] = crypto_info
 
-    # mongo.connect()
-    # mongo.insert(collection_name="Crypto", data={"fetched_at": _now_iso_utc(), "data": all_crypto_data})
+    mongo.connect()
+    mongo.insert(collection_name="Crypto", data={"fetched_at": _now_iso_utc(), "data": all_crypto_data})
 
-    # return {"MongoDB Inserted": "Crypto", "count": len(all_crypto_data)}
-    return all_crypto_data
+    return {"MongoDB Inserted": "Crypto", "count": len(all_crypto_data)}
+    #return all_crypto_data
 
 def fetch_crypto_history(
     coin_id: str = "bitcoin",
@@ -79,11 +79,11 @@ def fetch_crypto_history(
         "total_volumes": history.get("total_volumes", [])
     }
 
-    # mongo.connect()
-    # mongo.insert(collection_name="Crypto_History", data=payload)
+    mongo.connect()
+    mongo.insert(collection_name="Crypto_History", data=payload)
 
-    # return {"MongoDB": "Crypto_History", "coin_id": coin_id, "count": len(payload["prices"])}
-    return payload
+    return {"MongoDB": "Crypto_History", "coin_id": coin_id, "count": len(payload["prices"])}
+    #return payload
 
 
 
