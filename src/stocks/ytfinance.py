@@ -9,21 +9,17 @@ from typing import List, Optional, Dict, Any
 # --- FastAPI router bits
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
-from src.schemas import IngestResult
 
 DEFAULT_TICKERS = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'AMZN']
-DATA_DIR = Path("ingestion/data/stocks")
 
 def _now_iso_utc() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 def fetch_stock_data(
-    tickers: Optional[List[str]] = None,
-    output_dir: Optional[str] = None
+    tickers: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     tickers = tickers or DEFAULT_TICKERS
-    outdir = Path(output_dir or DATA_DIR)
-    outdir.mkdir(parents=True, exist_ok=True)
+    
 
     all_stock_data: Dict[str, Any] = {}
 
@@ -67,19 +63,12 @@ def fetch_stock_data(
 
         all_stock_data[tkr] = stock_data
 
-    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    path = outdir / f"stock_data_{ts}.json"
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(all_stock_data, f, indent=2, ensure_ascii=False)
-
-    return {"path": str(path), "count": len(all_stock_data)}
+    return all_stock_data
 
 def fetch_single_stock(
-    ticker: str,
-    output_dir: Optional[str] = None
+    ticker: str
 ) -> Dict[str, Any]:
-    outdir = Path(output_dir or DATA_DIR)
-    outdir.mkdir(parents=True, exist_ok=True)
+
 
     stock = yf.Ticker(ticker)
     info = stock.info
@@ -95,27 +84,18 @@ def fetch_single_stock(
         "timestamp": _now_iso_utc()
     }
 
-    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    path = outdir / f"stock_{ticker}_{ts}.json"
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, ensure_ascii=False)
-
-    return {"path": str(path), "ticker": ticker}
-
-# ---------- FastAPI Router ----------
+    return payload
 
 
 router = APIRouter(prefix="/ingest/stocks", tags=["stocks"])
 
-@router.post("", response_model=IngestResult)
-def ingest_stocks(tickers: Optional[str] = Query(None, description="Comma-separated tickers"),
-                  output_dir: Optional[str] = None):
+@router.post("")
+def ingest_stocks(tickers: Optional[str] = Query(None, description="Comma-separated tickers")):
     tickers_list: Optional[List[str]] = None
     if tickers:
         tickers_list = [s.strip().upper() for s in tickers.split(",") if s.strip()]
-    return fetch_stock_data(tickers=tickers_list, output_dir=output_dir or str(DATA_DIR))
+    return fetch_stock_data(tickers=tickers_list)
 
-@router.post("/single", response_model=IngestResult)
-def ingest_stock_single(ticker: str,
-                        output_dir: Optional[str] = None):
-    return fetch_single_stock(ticker=ticker.upper(), output_dir=output_dir or str(DATA_DIR))
+@router.post("/single")
+def ingest_stock_single(ticker: str):
+    return fetch_single_stock(ticker=ticker.upper())
