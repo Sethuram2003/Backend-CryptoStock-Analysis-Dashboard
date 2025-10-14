@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 import logging
-
+import certifi
 class MongoDB:
     def __init__(self, uri: str, db_name: str):
         """
@@ -19,7 +19,7 @@ class MongoDB:
         Establish a connection to the MongoDB database.
         """
         try:
-            self.client = MongoClient(self.uri)
+            self.client = MongoClient(self.uri,tls=True, tlsCAFile=certifi.where())
             self.client.admin.command('ping')  # test connection
             self.db = self.client[self.db_name]
             logging.info(f"✅ Connected to MongoDB: {self.db_name}")
