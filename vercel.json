@@ -11,5 +11,25 @@
       "src": "/(.*)",
       "dest": "src/main.py"
     }
-  ]
+  ],
+  "crons": [
+    {
+      "path": "/ingest/crypto",
+      "schedule": "*/15 * * * *",
+      "headers": { "Authorization": "Bearer ${CRON_SECRET}" }
+    },
+    {
+      "path": "/ingest/stocks",
+      "schedule": "0 * * * *",
+      "headers": { "Authorization": "Bearer ${CRON_SECRET}" }
+    }
+  ],
+  "functions": {
+    "src/main.py": {
+      "runtime": "python3.11",
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  }
 }
+
