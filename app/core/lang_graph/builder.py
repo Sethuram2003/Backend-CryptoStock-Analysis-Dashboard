@@ -20,7 +20,22 @@ def build_graph():
     workflow.add_edge("sentiment", "aggregate")
     workflow.add_edge("aggregate", END)
 
-    return workflow.compile()
+    compiled_graph = workflow.compile()
+    
+    # Get the graph object
+    graph = compiled_graph.get_graph()
+    
+    # Generate the Mermaid PNG bytes
+    try:
+        png_bytes = graph.draw_mermaid_png()
+        # Save the PNG to a file
+        with open("app/core/lang_graph/workflow_diagram.png", "wb") as f:
+            f.write(png_bytes)
+        print("Mermaid diagram saved as workflow_diagram.png")
+    except Exception as e:
+        print(f"Could not generate Mermaid PNG: {e}")
+
+    return compiled_graph
 
 
 if __name__ == "__main__":
