@@ -7,7 +7,7 @@ from app.core.lang_graph.builder import build_graph
 crypto_sentiment_router = APIRouter(tags=["Crypto"])
 
 app = FastAPI()
-@crypto_sentiment_router.post("/get-crypto-sentiment")
+@crypto_sentiment_router.put("/put-crypto-sentiment")
 def get_crypto_sentiment(coin_id: str = "bitcoin", days: int = 7):
 
     agent = build_graph()
