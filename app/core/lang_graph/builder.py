@@ -22,13 +22,10 @@ def build_graph():
 
     compiled_graph = workflow.compile()
     
-    # Get the graph object
     graph = compiled_graph.get_graph()
     
-    # Generate the Mermaid PNG bytes
     try:
         png_bytes = graph.draw_mermaid_png()
-        # Save the PNG to a file
         with open("app/core/lang_graph/workflow_diagram.png", "wb") as f:
             f.write(png_bytes)
         print("Mermaid diagram saved as workflow_diagram.png")
