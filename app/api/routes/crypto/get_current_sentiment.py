@@ -1,9 +1,10 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import JSONResponse
+import os
 
 from app.core.lang_graph.builder import build_graph
+from app.core.mongodb import MongoDB
 
- 
 crypto_sentiment_router = APIRouter(tags=["Crypto"])
 
 app = FastAPI()
@@ -15,5 +16,14 @@ def get_crypto_sentiment(coin_id: str = "bitcoin", days: int = 7):
                     "coin_name": coin_id,
                     "days": days
                 })
+    
+    mongo = MongoDB(
+        uri=os.getenv("MONGODB_URL"),
+        db_name=os.getenv("MONGODB_DATABASE")
+    )
+
+    mongo.connect()
+    mongo.insert(collection_name="Crypto_News", data={"data": response["final_report"].model_dump(mode="json"),"coin_name":coin_id, "days":days})
+    
     
     return JSONResponse({"response": response["final_report"].model_dump(mode="json")})
