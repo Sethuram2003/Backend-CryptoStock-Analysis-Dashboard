@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.data_loader import fetch_crypto_data
 
- 
+
 crypto_data_router = APIRouter(tags=["Crypto"])
 
 app = FastAPI()
