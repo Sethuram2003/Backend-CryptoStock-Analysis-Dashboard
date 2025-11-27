@@ -1,15 +1,19 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import JSONResponse
 
-from app.core.data_loader import fetch_crypto_history
+from app.core.lang_graph.builder import build_graph
 
  
 crypto_sentiment_router = APIRouter(tags=["Crypto"])
 
 app = FastAPI()
-@crypto_sentiment_router.get("/get-crypto-sentiment")
+@crypto_sentiment_router.post("/get-crypto-sentiment")
 def get_crypto_sentiment(coin_id: str = "bitcoin", days: int = 7):
 
-    payload = fetch_crypto_history(coin_id=coin_id, days=days)
+    agent = build_graph()
+    response = agent.invoke({
+                    "coin_name": coin_id,
+                    "days": days
+                })
     
-    return JSONResponse({'message': payload})
+    return JSONResponse({"response": response["final_report"].model_dump(mode="json")})

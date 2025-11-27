@@ -19,12 +19,16 @@ class FinalReport(BaseModel):
 class ScrapedArticle(BaseModel):
     url: str
     content: str
+    title: str
+
 
 
 class AnalyzedArticle(BaseModel):
     url: str
     sentiment: float
     content: str
+    title: str
+
 
 
 class SentimentAnalysisState(BaseModel):
