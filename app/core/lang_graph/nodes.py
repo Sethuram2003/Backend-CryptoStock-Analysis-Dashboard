@@ -13,7 +13,7 @@ load_dotenv()
 
 
 ollama_llm = ChatGroq(
-    model="meta-llama/llama-guard-4-12b",
+    model="meta-llama/llama-4-scout-17b-16e-instruct",
     temperature=0,
 )
 
