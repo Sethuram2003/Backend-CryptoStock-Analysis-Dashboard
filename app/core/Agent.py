@@ -29,7 +29,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 
 async def chat_agent():
     llm = ChatGroq(
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
         temperature=0,
     )
 
@@ -63,7 +63,12 @@ async def chat_agent():
                     *sys.path
                 ])
             }
+        },
+        "firecrawl-mcp": {
+        "transport": "streamable_http",
+        "url": f"https://mcp.firecrawl.dev/{os.getenv("FIRECRAWL_API_KEY")}/v2/mcp",  
         }
+
     }
 
     client = MultiServerMCPClient(McpConfig)
