@@ -48,6 +48,21 @@ async def chat_agent():
                     *sys.path
                 ])
             }
+        },
+        "stock_data": {
+            "command": python_executable, 
+            "args": [
+                os.path.join(current_dir, "StockMcpServer", "main.py") 
+            ],
+            "transport": "stdio",
+            "env": {
+                **os.environ,
+                "PYTHONPATH": os.pathsep.join([
+                    current_dir,
+                    os.path.join(current_dir, "StockMcpServer"),
+                    *sys.path
+                ])
+            }
         }
     }
 
@@ -60,7 +75,7 @@ async def chat_agent():
         system_prompt=SYSTEM_PROMPT,
         checkpointer=checkpointer
     )
-    
+
     return agent
 
 
