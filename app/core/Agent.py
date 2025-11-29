@@ -11,7 +11,7 @@ load_dotenv()
 
 async def chat_agent():
     llm = ChatGroq(
-        model="moonshotai/kimi-k2-instruct",
+        model="meta-llama/llama-guard-4-12b",
         temperature=0,
     )
 

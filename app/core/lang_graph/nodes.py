@@ -13,7 +13,7 @@ load_dotenv()
 
 
 ollama_llm = ChatGroq(
-    model="moonshotai/kimi-k2-instruct",
+    model="meta-llama/llama-guard-4-12b",
     temperature=0,
 )
 
@@ -125,8 +125,6 @@ def analyze_single_article(art):
         score = float(str(response.content).strip())
     except:
         score = 0.0
-
-    score = float(str(response.content).strip())
 
     return AnalyzedArticle(
         url=art.url,
