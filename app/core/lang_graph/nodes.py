@@ -6,12 +6,23 @@ from bs4 import BeautifulSoup
 from langchain_ollama import OllamaLLM
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
 
-ollama_llm = OllamaLLM(model="llama3.1:8b", temperature=0)
+load_dotenv()
+
+
+ollama_llm = ChatGroq(
+    model="moonshotai/kimi-k2-instruct",
+    temperature=0,
+)
+
+# ollama_llm = OllamaLLM(model="llama3.1:8b", temperature=0)
 
 def search_news(state: SentimentAnalysisState) -> Dict:
     query = f"{state.coin_name} cryptocurrency news last {state.days} days"
-    url = f"https://newsapi.org/v2/everything?q={query}&apiKey=9b5455fab616452d95eebe6181d08a05"
+    url = f"https://newsapi.org/v2/everything?q={query}&apiKey={os.getenv("NEWS_API")}"
 
     try:
         response = requests.get(url).json()
@@ -108,13 +119,15 @@ def analyze_single_article(art):
     for the following text.
 
     Text:
-    {art.content[:6000]}
+    {art.content[:1000]}
     """
     try:
         response = ollama_llm.invoke(prompt)
-        score = float(str(response).strip())
+        score = float(str(response.content).strip())
     except:
         score = 0.0
+
+    score = float(str(response.content).strip())
 
     return AnalyzedArticle(
         url=art.url,
