@@ -2,18 +2,18 @@ from fastapi import FastAPI, APIRouter
 from fastapi.responses import JSONResponse
 import os
 
-from app.core.CryptoData import fetch_crypto_data
+from app.core.StockData import fetch_stock_data
 from app.core.mongodb import MongoDB
 
 
-crypto_data_router = APIRouter(tags=["Crypto"])
+stock_data_router = APIRouter(tags=["Stock"])
 
 app = FastAPI()
 
-@crypto_data_router.get("/get-crypto-data")
-def get_crypto_data(coin_id: str = "bitcoin"):
+@stock_data_router.get("/get-stock-data")
+def get_stock_data(ticker: str = "AAPL"):
 
-    payload = fetch_crypto_data([coin_id])
+    payload = fetch_stock_data([ticker])
 
     mongo = MongoDB(
         uri=os.getenv("MONGODB_URL"),
@@ -21,6 +21,6 @@ def get_crypto_data(coin_id: str = "bitcoin"):
     )
 
     mongo.connect()
-    mongo.insert(collection_name="Crypto", data={"data": payload})
+    mongo.insert(collection_name="Stock_Market", data={"data": payload})
 
     return JSONResponse({'message': payload})

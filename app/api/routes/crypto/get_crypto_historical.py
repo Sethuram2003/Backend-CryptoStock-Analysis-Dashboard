@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import JSONResponse
 
-from app.core.data_loader import fetch_crypto_history
+from app.core.CryptoData import fetch_crypto_history
 
  
 crypto_historical_router = APIRouter(tags=["Crypto"])

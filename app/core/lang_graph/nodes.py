@@ -21,7 +21,7 @@ ollama_llm = ChatGroq(
 # ollama_llm = OllamaLLM(model="llama3.1:8b", temperature=0)
 
 def search_news(state: SentimentAnalysisState) -> Dict:
-    query = f"{state.coin_name} cryptocurrency news last {state.days} days"
+    query = f"{state.coin_name} news last {state.days} days"
     url = f"https://newsapi.org/v2/everything?q={query}&apiKey={os.getenv("NEWS_API")}"
 
     try:
