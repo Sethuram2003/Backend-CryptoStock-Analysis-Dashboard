@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Make sure your GOOGLE_API_KEY is set in the environment
-# os.environ["GOOGLE_API_KEY"] = "YOUR_GEMINI_API_KEY"
+os.environ["GOOGLE_API_KEY"] = "AIzaSyAZMkwl6rUmaSB3nx8u-wSqI9VWDgOpBYA"
 
 # Initialize Gemini LLM (drop-in replacement for ollama_llm)
 gemini_llm = ChatGoogleGenerativeAI(
