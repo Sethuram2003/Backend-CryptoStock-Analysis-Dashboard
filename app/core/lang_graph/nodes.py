@@ -3,7 +3,6 @@ from app.core.lang_graph.schema import SentimentAnalysisState, ScrapedArticle, A
 from typing import Dict
 import requests
 from bs4 import BeautifulSoup
-from langchain_ollama import OllamaLLM
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
