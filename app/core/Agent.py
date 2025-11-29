@@ -29,7 +29,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 
 async def chat_agent():
     llm = ChatGroq(
-        model="llama-3.3-70b-versatile",
+        model="groq/compound-mini",
         temperature=0,
     )
 
