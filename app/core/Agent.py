@@ -1,12 +1,15 @@
 import asyncio
 from langchain.agents import create_agent
 from langchain_mcp_adapters.client import MultiServerMCPClient  
+from langgraph.checkpoint.memory import InMemorySaver
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 
 from app.core.prompt import SYSTEM_PROMPT
 
 load_dotenv()
+
+checkpointer = InMemorySaver()
 
 
 async def chat_agent():
@@ -21,7 +24,8 @@ async def chat_agent():
     agent = create_agent(
         llm,
         tools=tools,
-        system_prompt=SYSTEM_PROMPT
+        system_prompt=SYSTEM_PROMPT,
+        checkpointer=checkpointer
     )
     return agent
 
