@@ -72,6 +72,33 @@ async def put_crypto_sentiment(coin_id: str = "bitcoin", days: int = 7) -> str:
         return "Error: Failed to fetch crypto sentiment"
     return json.dumps(data)
 
+@mcp.tool(
+    description="Fetch contents of a URL"
+)
+async def get_data_url(url: str, limit: int = 5000) -> str:
+    """
+    Takes in the URL of a website and returns truncated text content.
+    """
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+
+            content = response.text.strip()
+
+            # Truncate response
+            if len(content) > limit:
+                return content[:limit] + "\n\n...[TRUNCATED]..."
+
+            return content
+
+    except httpx.RequestError as e:
+        return f"Request error occurred: {str(e)}"
+    except httpx.HTTPStatusError as e:
+        return f"HTTP error occurred: {str(e)}"
+    except Exception as e:
+        return f"Unexpected error: {str(e)}"
+
 
 
 if __name__ == "__main__":
