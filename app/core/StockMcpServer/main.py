@@ -33,46 +33,12 @@ async def make_request(endpoint: str, method: str = "GET") -> Any:
         except Exception as e:
             print(f"Unexpected error: {e}")
             return None
-        
-
-def extract_ticker(context: Optional[str], fallback: str) -> str:
-    """
-    Extracts a stock ticker from conversation text.
-    Example:
-        "What is Apple stock doing?" → AAPL
-    User does NOT have to explicitly send a ticker.
-    """
-    if context:
-        context = context.upper()
-
-        common_tickers = ["AAPL", "TSLA", "NVDA", "MSFT", "AMZN", "GOOGL", "META"]
-        for t in common_tickers:
-            if t in context:
-                return t
-
-        name_map = {
-            "APPLE": "AAPL",
-            "TESLA": "TSLA",
-            "NVIDIA": "NVDA",
-            "MICROSOFT": "MSFT",
-            "AMAZON": "AMZN",
-            "GOOGLE": "GOOGL",
-            "META": "META",
-        }
-
-        for name, tick in name_map.items():
-            if name in context:
-                return tick
-
-    return fallback
 
 
 @mcp.tool(
     description="Fetch real-time stock market data (price, open, high, low, market cap, volume, exchange). "
-                "Ticker will be auto-detected from the conversation if omitted."
 )
-async def get_stock_data(ticker: str = "AAPL", context: Optional[str] = None) -> str:
-    ticker = extract_ticker(context, ticker)
+async def get_stock_data(ticker: str = "AAPL") -> str:
     data = await make_request(f"/get-stock-data?ticker={ticker}")
 
     if not data:
@@ -82,10 +48,8 @@ async def get_stock_data(ticker: str = "AAPL", context: Optional[str] = None) ->
 
 @mcp.tool(
     description="Fetch stock sentiment for the past N days (top financial news, article sentiment, "
-                "average sentiment, trend direction). Ticker auto-detected if not provided."
 )
-async def put_stock_sentiment(ticker: str = "AAPL", days: int = 7, context: Optional[str] = None) -> str:
-    ticker = extract_ticker(context, ticker)
+async def put_stock_sentiment(ticker: str = "AAPL", days: int = 7) -> str:
     data = await make_request(
         f"/put-stock-sentiment?ticker={ticker}&days={days}",
         method="PUT"
