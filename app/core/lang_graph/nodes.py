@@ -117,6 +117,8 @@ def analyze_single_article(art):
     Provide ONLY a single sentiment score between -1 and 1
     for the following text.
 
+    output needs to be only an integer always nothin more
+
     Text:
     {art.content[:1000]}
     """

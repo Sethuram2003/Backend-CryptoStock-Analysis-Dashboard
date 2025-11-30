@@ -1,6 +1,7 @@
 from typing import Any
 import json
 import httpx
+from bs4 import BeautifulSoup
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Crypto Data and Sentiment Tools")
@@ -73,24 +74,36 @@ async def put_crypto_sentiment(coin_id: str = "bitcoin", days: int = 7) -> str:
     return json.dumps(data)
 
 @mcp.tool(
-    description="Fetch contents of a URL"
+    description="Fetch visible text contents of a URL (HTML removed)"
 )
 async def get_data_url(url: str, limit: int = 5000) -> str:
     """
-    Takes in the URL of a website and returns truncated text content.
+    Takes in the URL of a website and returns readable text content only,
+    stripping out HTML, scripts, and styles.
     """
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(url)
             response.raise_for_status()
 
-            content = response.text.strip()
+            soup = BeautifulSoup(response.text, "html.parser")
 
-            # Truncate response
-            if len(content) > limit:
-                return content[:limit] + "\n\n...[TRUNCATED]..."
+            # Remove script and style elements
+            for tag in soup(["script", "style", "noscript"]):
+                tag.extract()
 
-            return content
+            text = soup.get_text(separator="\n").strip()
+
+            # Clean excessive whitespace
+            cleaned = "\n".join(
+                line.strip() for line in text.splitlines() if line.strip()
+            )
+
+            # Apply character limit
+            if len(cleaned) > limit:
+                return cleaned[:limit] + "\n\n...[TRUNCATED]..."
+
+            return cleaned
 
     except httpx.RequestError as e:
         return f"Request error occurred: {str(e)}"
