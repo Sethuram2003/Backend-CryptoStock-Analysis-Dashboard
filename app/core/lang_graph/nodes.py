@@ -29,7 +29,7 @@ def search_news(state: SentimentAnalysisState) -> Dict:
     except Exception:
         links = []
 
-    return {"search_results": links}
+    return {"search_results": links[0:5]}
 
 def scrape_single_article(url: str, headers):
     """Scrape & process a single article (runs in parallel)."""
