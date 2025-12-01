@@ -86,6 +86,11 @@ def run_producer():
     """
     Initializes Kafka Producer and publishes fetched data.
     """
+    import argparse
+    parser = argparse.ArgumentParser(description="Crypto Data Producer")
+    parser.add_argument("--run-once", action="store_true", help="Run once and exit")
+    args = parser.parse_args()
+
     print(f"Connecting to Kafka at {KAFKA_BROKER}...")
     try:
         producer = KafkaProducer(
@@ -96,20 +101,22 @@ def run_producer():
         print(f"Failed to connect to Kafka: {e}")
         return
 
-    print("Starting Crypto Producer Loop...")
+    print(f"Starting Crypto Producer (Run Once: {args.run_once})...")
+    
     while True:
         data = fetch_crypto_data()
         
         if data:
             try:
-                # We publish the whole payload as a single message, or split per coin.
-                # Publishing per coin allows for better consumer scalability, 
-                # but for now, we mirror the existing structure.
+                # We publish the whole payload as a single message
                 producer.send(TOPIC_NAME, value=data)
                 producer.flush()
                 print(f"Published data to topic '{TOPIC_NAME}' at {data['fetched_at']}")
             except Exception as e:
                 print(f"Failed to send data to Kafka: {e}")
+        
+        if args.run_once:
+            break
         
         # Fetch interval (e.g., every 60 seconds)
         time.sleep(60)

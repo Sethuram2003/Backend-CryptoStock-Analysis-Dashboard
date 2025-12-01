@@ -55,6 +55,11 @@ def run_producer():
     """
     Initializes Kafka Producer and publishes fetched data.
     """
+    import argparse
+    parser = argparse.ArgumentParser(description="Stock Data Producer")
+    parser.add_argument("--run-once", action="store_true", help="Run once and exit")
+    args = parser.parse_args()
+
     print(f"Connecting to Kafka at {KAFKA_BROKER}...")
     try:
         producer = KafkaProducer(
@@ -65,7 +70,7 @@ def run_producer():
         print(f"Failed to connect to Kafka: {e}")
         return
 
-    print("Starting Stock Producer Loop...")
+    print(f"Starting Stock Producer (Run Once: {args.run_once})...")
     while True:
         data = fetch_stock_data()
         
@@ -77,6 +82,9 @@ def run_producer():
             except Exception as e:
                 print(f"Failed to send data to Kafka: {e}")
         
+        if args.run_once:
+            break
+
         # Fetch interval (e.g., every 60 seconds)
         time.sleep(60)
 
