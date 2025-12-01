@@ -86,6 +86,25 @@ class MongoDB:
             logging.error(f"Failed to insert multiple documents into {collection_name}: {e}")
             raise
 
+    def get_latest(self, collection_name: str):
+        """
+        Retrieve the most recently inserted document from the collection.
+        Assumes natural order or _id sorting is sufficient for 'latest'.
+        """
+        if self.db is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
+        try:
+            # Sort by _id descending to get the newest document
+            document = self.db[collection_name].find_one(sort=[('_id', -1)])
+            if document:
+                # Convert ObjectId to string for JSON serialization if needed, 
+                # though usually we just return the dict.
+                document['_id'] = str(document['_id'])
+            return document
+        except Exception as e:
+            logging.error(f"Failed to retrieve latest document from {collection_name}: {e}")
+            raise
+
 
 if __name__ == "__main__":
 
