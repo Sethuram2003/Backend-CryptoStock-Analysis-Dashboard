@@ -80,6 +80,12 @@ def run_stock_producer():
     sys.argv = ["program", "--run-once"]
     run_producer()
 
+def run_binance_producer():
+    from app.kafka_services.producers.binance_producer import run_producer
+    import sys
+    sys.argv = ["program", "--run-once"]
+    run_producer()
+
 with dag:
     fetch_crypto_task = PythonOperator(
         task_id='fetch_crypto_data',
@@ -91,5 +97,10 @@ with dag:
         python_callable=run_stock_producer,
     )
 
+    fetch_binance_task = PythonOperator(
+        task_id='fetch_binance_data',
+        python_callable=run_binance_producer,
+    )
+
     # Run in parallel
-    [fetch_crypto_task, fetch_stock_task]
+    [fetch_crypto_task, fetch_stock_task, fetch_binance_task]

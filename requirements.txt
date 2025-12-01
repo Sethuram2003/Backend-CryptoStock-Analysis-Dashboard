@@ -76,3 +76,4 @@ websockets==15.0.1
 xxhash==3.6.0
 yfinance==0.2.66
 zstandard==0.25.0
+python-binance==1.0.19
