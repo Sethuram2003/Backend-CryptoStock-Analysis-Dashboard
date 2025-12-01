@@ -1,5 +1,31 @@
-fly.toml
+# Git
 .git/
-__pycache__/
+.gitignore
+
+# Environment / Secrets
+.env
 .envrc
+venv/
 .venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# macOS
+.DS_Store
+
+# Logs
+logs/
+
+# Plugins
+plugins/
+
+# Docker
+docker/
+
+# Fly.io
+fly.toml
+

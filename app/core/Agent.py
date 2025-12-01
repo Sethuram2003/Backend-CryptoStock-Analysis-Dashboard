@@ -63,10 +63,6 @@ async def chat_agent():
                     *sys.path
                 ])
             }
-        },
-        "scrapingbee-mcp": {
-            "transport": "streamable_http",
-            "url": f"https://mcp.scrapingbee.com/mcp?api_key={os.getenv('SCRAPINGBEE_API_KEY')}",
         }
     }
 

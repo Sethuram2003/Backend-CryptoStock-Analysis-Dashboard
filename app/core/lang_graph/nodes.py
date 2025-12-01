@@ -29,7 +29,7 @@ def search_news(state: SentimentAnalysisState) -> Dict:
     except Exception:
         links = []
 
-    return {"search_results": links}
+    return {"search_results": links[0:5]}
 
 def scrape_single_article(url: str, headers):
     """Scrape & process a single article (runs in parallel)."""
@@ -116,6 +116,8 @@ def analyze_single_article(art):
 
     Provide ONLY a single sentiment score between -1 and 1
     for the following text.
+
+    output needs to be only an integer always nothin more
 
     Text:
     {art.content[:1000]}
