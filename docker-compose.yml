@@ -15,6 +15,8 @@ x-airflow-common:
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
     # Auto-configure connection for Sentiment Analysis DAG
     AIRFLOW_CONN_FASTAPI_BACKEND: 'http://backend:8000'
+    # Kafka Configuration
+    KAFKA_BROKER: broker:9092
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
