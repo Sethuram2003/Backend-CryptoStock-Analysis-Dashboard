@@ -5,7 +5,6 @@ x-airflow-common:
   build:
     context: .
     dockerfile: docker/airflow/Dockerfile
-  image: ${AIRFLOW_IMAGE_NAME:-crypto-stock-airflow:latest}
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor

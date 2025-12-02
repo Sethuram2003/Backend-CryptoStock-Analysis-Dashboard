@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend:
+    restart: always
+    environment:
+      # Ensure we bind to 0.0.0.0 inside the container
+      HOST: "0.0.0.0"
+
+  zookeeper:
+    restart: always
+
+  broker:
+    restart: always
+
+  postgres:
+    restart: always
+
+  airflow-webserver:
+    restart: always
+
+  airflow-scheduler:
+    restart: always
