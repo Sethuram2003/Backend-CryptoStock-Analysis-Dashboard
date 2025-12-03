@@ -7,6 +7,7 @@ from typing import List, Optional, Dict, Any
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 import yfinance as yf
+import logging
 
 # Add the project root to the python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
@@ -16,6 +17,8 @@ KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:29092")
 TOPIC_NAME = "stock_market_data"
 DEFAULT_TICKERS = ["AAPL", "MSFT", "AMZN", "GOOGL", "TSLA"]
 
+logging.basicConfig(level=logging.INFO)
+
 def _now_iso_utc() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -23,6 +26,7 @@ def fetch_stock_data(tickers: Optional[List[str]] = None) -> Dict[str, Any]:
     """
     Fetches current stock data from yfinance (logic moved from app/core/StockData.py)
     """
+    logging.info("Starting to fetch stock data")
     tickers = tickers or DEFAULT_TICKERS
     all_stock_data = {}
 
@@ -47,8 +51,9 @@ def fetch_stock_data(tickers: Optional[List[str]] = None) -> Dict[str, Any]:
             }
             all_stock_data[symbol] = stock_info
         except Exception as e:
-            print(f"Error fetching data for {symbol}: {e}")
+            logging.error(f"Error fetching data for {symbol}: {e}", exc_info=True)
 
+    logging.info("Finished fetching stock data")
     return {"fetched_at": _now_iso_utc(), "data": all_stock_data}
 
 def run_producer():
@@ -60,17 +65,17 @@ def run_producer():
     parser.add_argument("--run-once", action="store_true", help="Run once and exit")
     args = parser.parse_args()
 
-    print(f"Connecting to Kafka at {KAFKA_BROKER}...")
+    logging.info(f"Connecting to Kafka at {KAFKA_BROKER}...")
     try:
         producer = KafkaProducer(
             bootstrap_servers=[KAFKA_BROKER],
             value_serializer=lambda x: json.dumps(x).encode('utf-8')
         )
     except KafkaError as e:
-        print(f"Failed to connect to Kafka: {e}")
-        return
+        logging.error(f"Failed to connect to Kafka: {e}", exc_info=True)
+        raise
 
-    print(f"Starting Stock Producer (Run Once: {args.run_once})...")
+    logging.info(f"Starting Stock Producer (Run Once: {args.run_once})...")
     while True:
         data = fetch_stock_data()
         
@@ -78,9 +83,10 @@ def run_producer():
             try:
                 producer.send(TOPIC_NAME, value=data)
                 producer.flush()
-                print(f"Published data to topic '{TOPIC_NAME}' at {data['fetched_at']}")
+                logging.info(f"Published data to topic '{TOPIC_NAME}' at {data['fetched_at']}")
             except Exception as e:
-                print(f"Failed to send data to Kafka: {e}")
+                logging.error(f"Failed to send data to Kafka: {e}", exc_info=True)
+                raise
         
         if args.run_once:
             break
