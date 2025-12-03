@@ -7,10 +7,8 @@ setup(
     include_package_data=True,
     install_requires=[
         'apache-airflow',
-        'kafka-python',
+        'confluent-kafka',
         'yfinance',
-        'python-dotenv',
-        'requests',
     ],
     entry_points={
         'console_scripts': [

@@ -4,8 +4,7 @@ import time
 import sys
 from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any
-from kafka import KafkaProducer
-from kafka.errors import KafkaError
+from confluent_kafka import Producer
 from pycoingecko import CoinGeckoAPI
 
 # Add the project root to the python path so we can import from app if needed
@@ -94,14 +93,8 @@ def run_producer():
     time.sleep(15)
 
     print(f"Connecting to Kafka at {KAFKA_BROKER}...")
-    try:
-        producer = KafkaProducer(
-            bootstrap_servers=[KAFKA_BROKER],
-            value_serializer=lambda x: json.dumps(x).encode('utf-8')
-        )
-    except KafkaError as e:
-        print(f"Failed to connect to Kafka: {e}")
-        return
+    producer_conf = {'bootstrap.servers': KAFKA_BROKER}
+    producer = Producer(producer_conf)
 
     print(f"Starting Crypto Producer (Run Once: {args.run_once})...")
     
@@ -111,7 +104,7 @@ def run_producer():
         if data:
             try:
                 # We publish the whole payload as a single message
-                producer.send(TOPIC_NAME, value=data)
+                producer.produce(TOPIC_NAME, value=json.dumps(data).encode('utf-8'))
                 producer.flush()
                 print(f"Published data to topic '{TOPIC_NAME}' at {data['fetched_at']}")
             except Exception as e:

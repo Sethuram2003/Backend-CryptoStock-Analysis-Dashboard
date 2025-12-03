@@ -82,7 +82,7 @@ def run_producer():
     Initializes Kafka Producer and publishes fetched data.
     """
     parser = argparse.ArgumentParser(description="Binance Data Producer")
-    parser..add_argument("--run-once", action="store_true", help="Run once and exit")
+    parser.add_argument("--run-once", action="store_true", help="Run once and exit")
     args = parser.parse_args()
 
     time.sleep(15)
