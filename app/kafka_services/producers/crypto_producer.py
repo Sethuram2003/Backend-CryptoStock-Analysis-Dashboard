@@ -91,6 +91,8 @@ def run_producer():
     parser.add_argument("--run-once", action="store_true", help="Run once and exit")
     args = parser.parse_args()
 
+    time.sleep(15)
+
     print(f"Connecting to Kafka at {KAFKA_BROKER}...")
     try:
         producer = KafkaProducer(
