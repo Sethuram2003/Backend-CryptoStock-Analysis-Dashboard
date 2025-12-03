@@ -105,10 +105,3 @@ class MongoDB:
             logging.error(f"Failed to retrieve latest document from {collection_name}: {e}")
             raise
 
-
-if __name__ == "__main__":
-
-    uri = "mongodb+srv://praveen:praveen_fishoil@cluster0.tpxrd0x.mongodb.net/RawData?retryWrites=true&w=majority&appName=Cluster0"
-    db_name = "RawData"
-
-    mongo = MongoDB(uri, db_name)
