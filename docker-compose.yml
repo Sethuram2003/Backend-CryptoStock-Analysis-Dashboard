@@ -30,6 +30,26 @@ x-airflow-common:
 
 services:
   # ----------------------------------------
+  # KAFKA Consumers
+  # ----------------------------------------
+  consumers:
+    build: .
+    container_name: consumers
+    command: >
+      bash -c "python app/kafka_services/consumers/stock_consumer.py &
+               python app/kafka_services/consumers/crypto_consumer.py"
+    env_file:
+      - .env
+    environment:
+      # Override/Ensure these are set for internal docker networking
+      KAFKA_BROKER: broker:9092
+      MONGODB_URL: ${MONGODB_URL}
+      MONGODB_DATABASE: ${MONGODB_DATABASE}
+    depends_on:
+      - broker
+      - postgres
+
+  # ----------------------------------------
   # BACKEND Service (FastAPI)
   # ----------------------------------------
   backend:
