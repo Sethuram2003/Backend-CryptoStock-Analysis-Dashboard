@@ -33,7 +33,9 @@ services:
   # KAFKA Consumers
   # ----------------------------------------
   consumers:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/airflow/Dockerfile
     container_name: consumers
     command: >
       bash -c "python app/kafka_services/consumers/stock_consumer.py &
