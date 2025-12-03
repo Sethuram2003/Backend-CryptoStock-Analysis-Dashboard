@@ -30,20 +30,36 @@ def run_crypto_producer():
     # Import inside the function to ensure sys.path is set
     from app.kafka_services.producers.crypto_producer import run_producer
     import sys
-    sys.argv = ["program", "--run-once"]
-    run_producer()
+    import logging
+    logging.info("Starting crypto producer")
+    try:
+        sys.argv = ["program", "--run-once"]
+        run_producer()
+    except Exception as e:
+        logging.error(f"Error running crypto producer: {e}", exc_info=True)
 
 def run_stock_producer():
     from app.kafka_services.producers.stock_producer import run_producer
     import sys
-    sys.argv = ["program", "--run-once"]
-    run_producer()
+    import logging
+    logging.info("Starting stock producer")
+    try:
+        sys.argv = ["program", "--run-once"]
+        run_producer()
+    except Exception as e:
+        logging.error(f"Error running stock producer: {e}", exc_info=True)
 
 def run_binance_producer():
     from app.kafka_services.producers.binance_producer import run_producer
     import sys
-    sys.argv = ["program", "--run-once"]
-    run_producer()
+    import logging
+    logging.info("Starting binance producer")
+
+    try:
+        sys.argv = ["program", "--run-once"]
+        run_producer()
+    except Exception as e:
+        logging.error(f"Error running binance producer: {e}", exc_info=True)
 
 with dag:
     fetch_crypto_task = PythonOperator(
