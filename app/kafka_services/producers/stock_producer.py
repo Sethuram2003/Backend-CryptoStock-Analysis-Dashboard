@@ -21,39 +21,78 @@ logging.basicConfig(level=logging.INFO)
 def _now_iso_utc() -> str:
     return datetime.now(timezone.utc).isoformat()
 
-def fetch_stock_data(tickers: Optional[List[str]] = None) -> Dict[str, Any]:
-    """
-    Fetches current stock data from yfinance (logic moved from app/core/StockData.py)
-    """
-    logging.info("Starting to fetch stock data")
-    tickers = tickers or DEFAULT_TICKERS
-    all_stock_data = {}
+def _get_last_price_from_history(stock: yf.Ticker) -> Optional[float]:
+    try:
+        h = stock.history(period="5d")
+        if h is not None and not h.empty:
+            return float(h["Close"].dropna().iloc[-1])
+    except Exception:
+        return None
+    return None
 
-    print(f"Fetching data for: {tickers}")
+def fetch_stock_data(tickers: Optional[List[str]] = None) -> Dict[str, Any]:
+    tickers = tickers or DEFAULT_TICKERS
+    all_stock_data: Dict[str, Any] = {}
+    errors: Dict[str, str] = {}
+
     for symbol in tickers:
         try:
             stock = yf.Ticker(symbol)
-            info = stock.fast_info 
+
+            try:
+                info = getattr(stock, "fast_info", {}) or {}
+            except Exception:
+                info = {}
+
+            last_price = info.get("lastPrice")
+            prev_close = info.get("previousClose")
+            open_price = info.get("open")
+            day_high = info.get("dayHigh")
+            day_low = info.get("dayLow")
+            market_cap = info.get("marketCap")
+            volume = info.get("lastVolume")
+            exchange = info.get("exchange")
+            currency = info.get("currency")
+
+            if last_price in (None, "N/A"):
+                last_price = _get_last_price_from_history(stock)
+                if last_price is None:
+                    try:
+                        slow_info = stock.info or {}
+                        last_price = slow_info.get("regularMarketPrice", "N/A")
+                        prev_close = prev_close or slow_info.get("previousClose")
+                        market_cap = market_cap or slow_info.get("marketCap")
+                        currency = currency or slow_info.get("currency")
+                        exchange = exchange or slow_info.get("exchange")
+                    except Exception:
+                        last_price = last_price if last_price is not None else "N/A"
 
             stock_info = {
                 "symbol": symbol,
-                "current_price": info.get("last_price", "N/A"),
-                "previous_close": info.get("previous_close", "N/A"),
-                "open_price": info.get("open", "N/A"),
-                "day_high": info.get("day_high", "N/A"),
-                "day_low": info.get("day_low", "N/A"),
-                "market_cap": info.get("market_cap", "N/A"),
-                "volume": info.get("volume", "N/A"),
-                "exchange": info.get("exchange", "N/A"),
-                "currency": info.get("currency", "USD"),
+                "current_price": last_price if last_price is not None else "N/A",
+                "previous_close": prev_close if prev_close is not None else "N/A",
+                "open_price": open_price if open_price is not None else "N/A",
+                "day_high": day_high if day_high is not None else "N/A",
+                "day_low": day_low if day_low is not None else "N/A",
+                "market_cap": market_cap if market_cap is not None else "N/A",
+                "volume": volume if volume is not None else "N/A",
+                "exchange": exchange if exchange is not None else "N/A",
+                "currency": currency if currency is not None else "USD",
                 "timestamp": _now_iso_utc(),
             }
-            all_stock_data[symbol] = stock_info
-        except Exception as e:
-            logging.error(f"Error fetching data for {symbol}: {e}", exc_info=True)
 
-    logging.info("Finished fetching stock data")
-    return {"fetched_at": _now_iso_utc(), "data": all_stock_data}
+            all_stock_data[symbol] = stock_info
+
+        except Exception as e:
+            logger.exception("Error fetching data for %s", symbol)
+            errors[symbol] = str(e)
+            all_stock_data[symbol] = {
+                "symbol": symbol,
+                "error": str(e),
+                "timestamp": _now_iso_utc(),
+            }
+
+    return {"fetched_at": _now_iso_utc(), "data": all_stock_data, "errors": errors}
 
 def run_producer():
     """
