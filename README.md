@@ -55,14 +55,14 @@ Once the containers are running, you can access the following interfaces:
     *   **Username:** `airflow`
     *   **Password:** `airflow`
 <!-- *   **FastAPI Backend:** [http://localhost:8000/docs](http://localhost:8000/docs) (Swagger UI) -->
-*   **FastAPI Backend:** [http://http://178.156.209.160:8080/docs](hhttp://178.156.209.160:8080/docs) (Swagger UI)
+*   **FastAPI Backend:** [http://178.156.209.160:8080/docs](http://178.156.209.160:8080/docs) (Swagger UI)
 *   **Kafka Broker:** `localhost:29092` (External access)
 
 ## Running the Pipeline
 
 The data pipelines are managed automatically by Airflow.
 
-1.  **Login to Airflow** at [http://localhost:8080](http://localhost:8080).
+1.  **Login to Airflow** at [http://178.156.209.160:8080](http://178.156.209.160:8080).
 2.  You will see two main DAGs:
     *   `market_data_ingestion`: Runs **every minute**. Fetches real-time data from CoinGecko, Binance, and Yahoo Finance via Kafka.
     *   `sentiment_analysis_pipeline`: Runs **every 6 hours**. Triggers the backend to perform sentiment analysis on the collected data.
