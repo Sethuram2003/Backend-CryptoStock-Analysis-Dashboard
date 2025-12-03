@@ -37,6 +37,7 @@ def run_crypto_producer():
         run_producer()
     except Exception as e:
         logging.error(f"Error running crypto producer: {e}", exc_info=True)
+        raise
 
 def run_stock_producer():
     from app.kafka_services.producers.stock_producer import run_producer
@@ -48,6 +49,7 @@ def run_stock_producer():
         run_producer()
     except Exception as e:
         logging.error(f"Error running stock producer: {e}", exc_info=True)
+        raise
 
 def run_binance_producer():
     from app.kafka_services.producers.binance_producer import run_producer
@@ -60,6 +62,7 @@ def run_binance_producer():
         run_producer()
     except Exception as e:
         logging.error(f"Error running binance producer: {e}", exc_info=True)
+        raise
 
 with dag:
     fetch_crypto_task = PythonOperator(
