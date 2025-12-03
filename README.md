@@ -50,10 +50,12 @@ This may take a few minutes the first time as it downloads images and builds the
 
 Once the containers are running, you can access the following interfaces:
 
-*   **Airflow UI:** [http://localhost:8080](http://localhost:8080)
+<!-- *   **Airflow UI:** [http://localhost:8080](http://localhost:8080) -->
+*   **Airflow UI:** [http://178.156.209.160:8080](http://178.156.209.160:8080)
     *   **Username:** `airflow`
     *   **Password:** `airflow`
-*   **FastAPI Backend:** [http://localhost:8000/docs](http://localhost:8000/docs) (Swagger UI)
+<!-- *   **FastAPI Backend:** [http://localhost:8000/docs](http://localhost:8000/docs) (Swagger UI) -->
+*   **FastAPI Backend:** [http://http://178.156.209.160:8080/docs](hhttp://178.156.209.160:8080/docs) (Swagger UI)
 *   **Kafka Broker:** `localhost:29092` (External access)
 
 ## Running the Pipeline

@@ -10,6 +10,7 @@ crypto_data_router = APIRouter(tags=["Crypto"])
 
 app = FastAPI()
 
+
 @crypto_data_router.get("/get-crypto-data")
 def get_crypto_data(coin_id: str = "bitcoin"):
 

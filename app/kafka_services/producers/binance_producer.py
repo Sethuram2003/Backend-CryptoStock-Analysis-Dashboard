@@ -5,8 +5,7 @@ import sys
 import argparse
 from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any
-from kafka import KafkaProducer
-from kafka.errors import KafkaError
+from confluent_kafka import Producer
 from binance.client import Client
 
 # Add the project root to the python path
@@ -33,7 +32,7 @@ def fetch_binance_data() -> Dict[str, Any]:
     """
     Fetches current crypto data from Binance Spot API.
     """
-    client = Client() # Public endpoints don't need keys
+    client = Client(tld='us') # Public endpoints don't need keys
     all_crypto_data = {}
 
     try:
@@ -85,15 +84,11 @@ def run_producer():
     parser.add_argument("--run-once", action="store_true", help="Run once and exit")
     args = parser.parse_args()
 
+    time.sleep(15)
+
     print(f"Connecting to Kafka at {KAFKA_BROKER}...")
-    try:
-        producer = KafkaProducer(
-            bootstrap_servers=[KAFKA_BROKER],
-            value_serializer=lambda x: json.dumps(x).encode('utf-8')
-        )
-    except KafkaError as e:
-        print(f"Failed to connect to Kafka: {e}")
-        return
+    producer_conf = {'bootstrap.servers': KAFKA_BROKER}
+    producer = Producer(producer_conf)
 
     print(f"Starting Binance Producer (Run Once: {args.run_once})...")
     while True:
@@ -101,7 +96,7 @@ def run_producer():
         
         if data:
             try:
-                producer.send(TOPIC_NAME, value=data)
+                producer.produce(TOPIC_NAME, value=json.dumps(data).encode('utf-8'))
                 producer.flush()
                 print(f"Published Binance data to topic '{TOPIC_NAME}' at {data['fetched_at']}")
             except Exception as e:

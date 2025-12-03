@@ -1,0 +1,2 @@
+include app/py.typed
+recursive-include app *.py

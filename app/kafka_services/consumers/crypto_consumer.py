@@ -2,8 +2,7 @@ import json
 import os
 import sys
 import logging
-from kafka import KafkaConsumer
-from kafka.errors import KafkaError
+from confluent_kafka import Consumer, KafkaError
 
 # Add the project root to the python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
@@ -25,23 +24,13 @@ def run_consumer():
     """
     logger.info(f"Connecting to Kafka at {KAFKA_BROKER}...")
     
-    # Retry logic for initial connection
-    consumer = None
-    while not consumer:
-        try:
-            consumer = KafkaConsumer(
-                TOPIC_NAME,
-                bootstrap_servers=[KAFKA_BROKER],
-                auto_offset_reset='latest',
-                enable_auto_commit=True,
-                group_id=GROUP_ID,
-                value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-            )
-            logger.info("Successfully connected to Kafka.")
-        except KafkaError as e:
-            logger.error(f"Failed to connect to Kafka: {e}. Retrying in 5 seconds...")
-            import time
-            time.sleep(5)
+    consumer_conf = {
+        'bootstrap.servers': KAFKA_BROKER,
+        'group.id': GROUP_ID,
+        'auto.offset.reset': 'latest'
+    }
+    consumer = Consumer(consumer_conf)
+    consumer.subscribe([TOPIC_NAME])
 
     # Initialize MongoDB Connection
     mongo_uri = os.getenv("MONGODB_URL") or os.getenv("MONGODB_URI")
@@ -60,9 +49,19 @@ def run_consumer():
 
     logger.info("Starting Crypto Consumer Loop...")
     
-    for message in consumer:
-        try:
-            data = message.value
+    try:
+        while True:
+            msg = consumer.poll(1.0)
+            if msg is None:
+                continue
+            if msg.error():
+                if msg.error().code() == KafkaError._PARTITION_EOF:
+                    continue
+                else:
+                    logger.error(msg.error())
+                    break
+            
+            data = json.loads(msg.value().decode('utf-8'))
             logger.info(f"Received data from {TOPIC_NAME}, fetched at: {data.get('fetched_at', 'unknown')}")
             
             # Write to MongoDB
@@ -70,8 +69,11 @@ def run_consumer():
             # We'll maintain that structure for consistency with the frontend.
             mongo.insert(collection_name="Crypto", data={"data": data})
             
-        except Exception as e:
-            logger.error(f"Error processing message: {e}")
+    except KeyboardInterrupt:
+        pass
+    finally:
+        consumer.close()
+        logger.info("Crypto consumer closed.")
 
 if __name__ == "__main__":
     run_consumer()

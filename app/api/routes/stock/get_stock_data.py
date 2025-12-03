@@ -10,6 +10,7 @@ stock_data_router = APIRouter(tags=["Stock"])
 
 app = FastAPI()
 
+
 @stock_data_router.get("/get-stock-data")
 def get_stock_data(ticker: str = "AAPL"):
 
