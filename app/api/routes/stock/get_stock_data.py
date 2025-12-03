@@ -16,9 +16,12 @@ def get_stock_data(ticker: str = "AAPL"):
 
     payload = fetch_stock_data([ticker])
 
-    mongo = MongoDB(uri=os.getenv("MONGODB_URL"), db_name=os.getenv("MONGODB_DATABASE"))
+    mongo = MongoDB(
+        uri=os.getenv("MONGODB_URL"),
+        db_name=os.getenv("MONGODB_DATABASE")
+    )
 
     mongo.connect()
     mongo.insert(collection_name="Stock_Market", data={"data": payload})
 
-    return JSONResponse({"message": payload})
+    return JSONResponse({'message': payload})

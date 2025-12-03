@@ -16,9 +16,12 @@ def get_crypto_data(coin_id: str = "bitcoin"):
 
     payload = fetch_crypto_data([coin_id])
 
-    mongo = MongoDB(uri=os.getenv("MONGODB_URL"), db_name=os.getenv("MONGODB_DATABASE"))
+    mongo = MongoDB(
+        uri=os.getenv("MONGODB_URL"),
+        db_name=os.getenv("MONGODB_DATABASE")
+    )
 
     mongo.connect()
     mongo.insert(collection_name="Crypto", data={"data": payload})
 
-    return JSONResponse({"message": payload})
+    return JSONResponse({'message': payload})
