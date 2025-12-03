@@ -7,6 +7,8 @@ from typing import List, Optional, Dict, Any
 from confluent_kafka import Producer
 import yfinance as yf
 import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Add the project root to the python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
