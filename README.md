@@ -55,8 +55,8 @@ Once the containers are running, you can access the following interfaces:
     *   **Username:** `airflow`
     *   **Password:** `airflow`
 <!-- *   **FastAPI Backend:** [http://localhost:8000/docs](http://localhost:8000/docs) (Swagger UI) -->
-*   **FastAPI Backend:** [http://178.156.209.160:8080/docs](http://178.156.209.160:8080/docs) (Swagger UI)
-*   **Kafka Broker:** `localhost:29092` (External access)
+<!-- *   **FastAPI Backend:** [http://178.156.209.160:8080/docs](http://178.156.209.160:8080/docs) (Swagger UI)
+*   **Kafka Broker:** `localhost:29092` (External access) -->
 
 ## Running the Pipeline
 
