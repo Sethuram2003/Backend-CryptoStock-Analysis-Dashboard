@@ -32,11 +32,7 @@ def fetch_binance_data() -> Dict[str, Any]:
     """
     Fetches current crypto data from Binance Spot API.
     """
-    proxies = {
-        'http': 'http://your_proxy_url:your_proxy_port',
-        'https': 'https://your_proxy_url:your_proxy_port',
-    }
-    client = Client(proxies=proxies) # Public endpoints don't need keys
+    client = Client(tld='us') # Public endpoints don't need keys
     all_crypto_data = {}
 
     try:
