@@ -4,9 +4,7 @@ from datetime import datetime, timedelta
 import sys
 import os
 
-# Add the project root to the python path so we can import the producers
-# The 'app' folder is mounted at /opt/airflow/app
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 
 default_args = {
     'owner': 'airflow',
