@@ -15,7 +15,7 @@ A comprehensive real-time financial analysis platform that combines data enginee
 - **Sanjay** - [@Sanjay-RK-27](https://github.com/Sanjay-RK-27)
 - **Praveen** - [@apraveen001](https://github.com/apraveen001)
 - **Sriram** - [@SriramV1212](https://github.com/SriramV1212)
-- **Abby** - [@AdebayoBraimah](https://github.com/AdebayoBraimah)
+- **Adebayo** - [@AdebayoBraimah](https://github.com/AdebayoBraimah)
 
 ## 🏗️ System Architecture
 
