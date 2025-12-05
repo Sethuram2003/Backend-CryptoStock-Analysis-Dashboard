@@ -6,7 +6,7 @@ from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Crypto Data and Sentiment Tools")
 
-BASE_URL = "https://crypto-and-stock-analysis-da-and-ag.vercel.app"
+BASE_URL = "https://cse542-group16.live"
 
 
 async def make_crypto_request(endpoint: str, method: str = "GET") -> Any:
