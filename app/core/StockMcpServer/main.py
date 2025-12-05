@@ -5,7 +5,7 @@ from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Stock Data and sentiment analysis Tools")
 
-BASE_URL = "https://cse542-group16.live"
+BASE_URL = "http://127.0.0.1:8000"
 
 
 async def make_request(endpoint: str, method: str = "GET") -> Any:

@@ -4,6 +4,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
+from langchain_ollama import OllamaLLM
 import os
 import sys
 
@@ -28,10 +29,12 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 async def chat_agent():
-    llm = ChatGroq(
-        model="meta-llama/llama-4-scout-17b-16e-instruct",
-        temperature=0,
-    )
+    # llm = ChatGroq(
+    #     model="meta-llama/llama-4-scout-17b-16e-instruct",
+    #     temperature=0,
+    # )
+
+    llm = OllamaLLM(model="deepseek-r1:8b", temperature=0)
 
     McpConfig={
         "crypto_data": {

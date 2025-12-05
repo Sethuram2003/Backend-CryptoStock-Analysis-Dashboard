@@ -7,17 +7,16 @@ import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 from dotenv import load_dotenv
-from langchain_groq import ChatGroq
-
+from langchain_ollama import OllamaLLM
 load_dotenv()
 
 
-ollama_llm = ChatGroq(
-    model="groq/compound",
-    temperature=0,
-)
+# ollama_llm = ChatGroq(
+#     model="groq/compound",
+#     temperature=0,
+# )
 
-# ollama_llm = OllamaLLM(model="llama3.1:8b", temperature=0)
+ollama_llm = OllamaLLM(model="llama3.1:8b", temperature=0)
 
 def search_news(state: SentimentAnalysisState) -> Dict:
     query = f"{state.coin_name} news last {state.days} days"
