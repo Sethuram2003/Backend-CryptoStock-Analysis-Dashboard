@@ -264,7 +264,7 @@ LANGSMITH_API_KEY="your_langsmith_api_key_here"
 LANGSMITH_PROJECT="crypto_stock"
 
 # Airflow Configuration
-AIRFLOW_UID=0
+AIRFLOW_UID=501 # or 0 if running as root. This can be found using the command: 'echo $(id -u)'
 ```
 
 ### API Key Sources
