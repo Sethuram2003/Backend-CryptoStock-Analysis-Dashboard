@@ -4,7 +4,7 @@ A comprehensive real-time financial analysis platform that combines data enginee
 
 ## 🌐 Live Deployments
 
-- **FastAPI Backend (Vercel):** [https://crypto-and-stock-analysis-da-and-ag.vercel.app/docs](https://crypto-and-stock-analysis-da-and-ag.vercel.app/docs)
+- **FastAPI Backend (Vercel):** [https://frontend-crypto-stock-analysis-dash.vercel.app/docs](https://frontend-crypto-stock-analysis-dash.vercel.app/docs)
 - **Airflow Dashboard (Hetzner):** [http://178.156.209.160:8080](http://178.156.209.160:8080)
   - Username: `airflow`
   - Password: `airflow`
