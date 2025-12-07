@@ -351,7 +351,7 @@ docker-compose up -d --build
 ```
 
 ### Access Airflow DAGs
-1. Navigate to [http://localhost:8080](http://localhost:8080)
+1. Navigate to [http://178.156.209.160:8080](http://178.156.209.160:8080)
 2. Login with `airflow` / `airflow`
 3. Toggle DAGs to activate them
 4. Monitor execution in Grid/Graph view
