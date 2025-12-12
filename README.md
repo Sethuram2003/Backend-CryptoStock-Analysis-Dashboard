@@ -230,6 +230,43 @@ An intelligent financial analysis assistant powered by:
   - Triggers sentiment analysis for 5 stocks
 - **HTTP Operator:** Calls FastAPI backend endpoints
 
+## 🚀 Quickstart
+```bash
+# 1. Clone the repository
+git clone https://github.com/sethuram2003/backend-cryptostock-analysis-dashboard.git
+
+# 2. Navigate to the backend directory
+cd backend-cryptostock-analysis-dashboard
+
+# 3. Fetch all remote branches
+git fetch --all
+
+# 4. Create and checkout local branch
+git branch localhostedllm
+git checkout localhostedllm
+
+# 5. Pull from local host branch from remote
+git pull origin localhostedllm
+
+# 6. Create the environment file
+# Note: You must populate .env with valid keys for the app to start
+cp .env.sample .env
+
+# 7. Start the services using Docker Compose
+docker-compose up -d --build
+
+# Server access points
+#
+# FastAPI Documentation (Swagger UI):
+http://localhost:8000/docs
+
+# Apache Airflow UI:
+http://localhost:8080
+
+# Health Check:
+http://localhost:8000/health
+```
+
 ## 🚀 Getting Started
 
 ### Prerequisites
