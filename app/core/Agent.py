@@ -4,7 +4,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
-from langchain_ollama import OllamaLLM
+from langchain_ollama import ChatOllama
 import os
 import sys
 
@@ -34,7 +34,7 @@ async def chat_agent():
     #     temperature=0,
     # )
 
-    llm = OllamaLLM(model="deepseek-r1:8b", temperature=0)
+    llm = ChatOllama(model="llama3.1:8b", temperature=0)
 
     McpConfig={
         "crypto_data": {
